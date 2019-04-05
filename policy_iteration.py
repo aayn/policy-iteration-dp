@@ -1,10 +1,13 @@
 import numpy as np
 import pickle
 from policy import make_policy
-from environment import states, state_value_return
+from environment import states, state_value_return, actions
 from plotting import vplot, piplot
 
 MAX_CARS = 20
+# Set to True if running for Exercise 4.7
+EX_4_7 = True
+
 
 def policy_iteration(model_return, theta=0.1):
     S = states(MAX_CARS)
@@ -20,15 +23,16 @@ def policy_iteration(model_return, theta=0.1):
             Δ = 0
             for s in S:
                 v = V[s]
-                V[s] = model_return(s, π[s], V)
+                V[s] = model_return(s, π[s], V, EX_4_7)
                 Δ = max(Δ, abs(v - V[s]))
             print(Δ)
+
         # Policy Improvement
         policy_stable = True
         for s in S:
             old_action = π[s]
             # Valid actions
-            A = range(max(-5, -s[1]), min(s[0] + 1, 6))
+            A = actions(s)
             π[s] = max(A, key=lambda a: model_return(s, a, V))
             print(π[s], old_action)
             if old_action != π[s]:
@@ -38,9 +42,9 @@ def policy_iteration(model_return, theta=0.1):
 
 if __name__ == '__main__':
     V, π = policy_iteration(state_value_return)
-    with open('Vpi.pkl', 'wb') as pfile:
-        pickle.dump([V, π], pfile)
-    with open('Vpi.pkl', 'rb') as pfile:
+    # with open('data/Vpi_47.pkl', 'wb') as pfile:
+        # pickle.dump([V, π], pfile)
+    with open('data/Vpi_47.pkl', 'rb') as pfile:
         V, π = pickle.load(pfile)
-    vplot(V, MAX_CARS)
-    piplot(π, MAX_CARS)
+    vplot(V, MAX_CARS, suffix='_47')
+    piplot(π, MAX_CARS, suffix='_47')
